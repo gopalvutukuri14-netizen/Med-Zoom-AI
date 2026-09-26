@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>MedZoom AI</title>
+  <link rel="stylesheet" href="style.css">
+
+  <script src="three.min.js"></script>
+  <script src="gsap.min.js"></script>
+</head>
+
+<body class="home-body">
+
+  <!-- 3D BACKGROUND CANVAS -->
+  <canvas id="bg3d"></canvas>
+
+  <!-- TOP NAVBAR -->
+  <header class="top-nav nav-slide-down">
+    <div class="nav-left">
+      <span class="nav-logo">MedZoom <span>AI</span></span>
+    </div>
+    <div class="nav-right">
+      <!-- Profile dropdown -->
+      <div class="profile-menu" onclick="toggleProfileMenu(event)">
+        <div class="profile-chip">
+          <div class="avatar-circle" id="avatarInitial">U</div>
+          <span id="navUserName">User</span>
+          <span class="caret">▾</span>
+        </div>
+        <div class="profile-dropdown" id="profileDropdown">
+          <button type="button" onclick="openProfile()">Your Profile</button>
+          <button type="button" class="logout-item" onclick="logoutMedzoom()">Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN LAYOUT: LEFT 70% / RIGHT 30% -->
+  <main class="landing-layout">
+    <!-- LEFT: Welcome hero -->
+    <section class="hero-left slide-left">
+
+      <div class="dna-bg">
+        <svg viewBox="0 0 180 320" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 10 C 20 40, 20 80, 50 110 C 80 140, 80 180, 50 210 C 20 240, 20 280, 50 310" fill="none"
+            stroke="#60a5fa" stroke-width="3" stroke-linecap="round" />
+          <path d="M130 10 C 160 40, 160 80, 130 110 C 100 140, 100 180, 130 210 C 160 240, 160 280, 130 310"
+            fill="none" stroke="#bfdbfe" stroke-width="3" stroke-linecap="round" />
+          <g stroke="#93c5fd" stroke-width="2">
+            <line x1="50" y1="25" x2="130" y2="35" />
+            <line x1="50" y1="55" x2="130" y2="65" />
+            <line x1="50" y1="85" x2="130" y2="95" />
+            <line x1="50" y1="115" x2="130" y2="125" />
+            <line x1="50" y1="145" x2="130" y2="155" />
+            <line x1="50" y1="175" x2="130" y2="185" />
+            <line x1="50" y1="205" x2="130" y2="215" />
+            <line x1="50" y1="235" x2="130" y2="245" />
+            <line x1="50" y1="265" x2="130" y2="275" />
+            <line x1="50" y1="295" x2="130" y2="305" />
+          </g>
+        </svg>
+      </div>
+
+      <div class="hero-content">
+        <h1 class="hero-title reveal">
+          Welcome to <span>MedZoom AI</span>
+        </h1>
+
+        <h3 class="hero-username">
+          Hello, <span id="heroUserName">User</span>
+        </h3>
+
+        <div class="hero-image-wrap">
+          <img class="hero-image hero-floating" src="Zoom_ai.jpg" alt="Online consultation illustration" />
+        </div>
+
+        <p class="hero-subtitle">
+          Smart AI-powered medical meetings, imaging analysis, and real-time collaboration —
+          powered by deep learning.
+        </p>
+      </div>
+    </section>
+
+    <!-- RIGHT: Start a Meeting card -->
+    <section class="hero-right slide-right">
+      <div class="meeting-card">
+        <h2 class="meeting-title">Start a Meeting</h2>
+        <p class="meeting-subtitle">
+          Create or join a secure room.
+        </p>
+
+        <div class="meeting-buttons">
+          <button class="btn primary full-width" onclick="openModal('create')">
+            Create Room
+          </button>
+          <button class="btn success full-width" onclick="openModal('join')">
+            Join Room
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- CREATE ROOM MODAL -->
+  <div id="create-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Create Room</h2>
+      <input type="text" id="displayNameInput" placeholder="Your name" />
+      <input id="create-room" placeholder="Room name" />
+      <input id="create-code" placeholder="Room code / password" />
+      <div class="modal-actions">
+        <button class="btn primary" onclick="createRoom()">START</button>
+        <button class="btn text" onclick="closeModal('create')">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JOIN ROOM MODAL -->
+  <div id="join-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Join Room</h2>
+      <input id="join-name" placeholder="Your name" />
+      <input id="join-room" placeholder="Room name" />
+      <input id="join-code" placeholder="Room code / password" />
+      <div class="modal-actions">
+        <button class="btn primary" onclick="joinRoom()">JOIN</button>
+        <button class="btn text" onclick="closeModal('join')">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFO MODAL -->
+  <div id="info-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2 id="info-title">Notice</h2>
+      <p id="info-message" style="margin-bottom: 20px; color: #cbd5e1;"></p>
+      <div class="modal-actions">
+        <button class="btn primary" onclick="closeModal('info')">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+
+    /* ==============================
+       SET USER NAME FROM LOCAL STORAGE
+    ============================== */
+    const savedUser = localStorage.getItem("medzoomUser");
+    const savedUserFull = JSON.parse(localStorage.getItem("user") || "null");
+    let finalName = savedUser || (savedUserFull?.name) || "User";
+
+    document.getElementById("heroUserName").textContent = finalName;
+    document.getElementById("navUserName").textContent = finalName;
+    document.getElementById("avatarInitial").textContent = finalName[0].toUpperCase();
+
+    // Auto-fill modal inputs
+    document.getElementById("displayNameInput").value = finalName;
+    document.getElementById("join-name").value = finalName;
+
+    /* ==============================
+       PROFILE DROPDOWN
+    ============================== */
+    function toggleProfileMenu(event) {
+      event.stopPropagation();
+      document.getElementById("profileDropdown").classList.toggle("show");
+    }
+    document.addEventListener("click", () => {
+      document.getElementById("profileDropdown").classList.remove("show");
+    });
+
+    /* ==============================
+       LOGOUT
+    ============================== */
+    function logoutMedzoom() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("medzoomUser");
+      window.location.href = "/signup";
+    }
+
+    /* ==============================
+       CREATE ROOM
+    ============================== */
+    async function createRoom() {
+      const displayName = document.getElementById("displayNameInput").value.trim();
+      const roomName = document.getElementById("create-room").value.trim();
+      const roomCode = document.getElementById("create-code").value.trim();
+
+      if (!displayName || !roomName || !roomCode) return alert("Fill all fields");
+
+      const res = await fetch("/api/create-room", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ displayName, roomName, roomCode })
+      });
+
+      const data = await res.json();
+      if (!data.ok) return alert(data.msg || "Error creating room");
+
+      window.location.href =
+        `room.html?room=${encodeURIComponent(roomName)}&name=${encodeURIComponent(displayName)}&host=true`;
+    }
+
+    /* ==============================
+       JOIN ROOM
+    ============================== */
+    async function joinRoom() {
+      const displayName = document.getElementById("join-name").value.trim();
+      const roomName = document.getElementById("join-room").value.trim();
+      const roomCode = document.getElementById("join-code").value.trim();
+
+      if (!displayName || !roomName || !roomCode) return alert("Fill all fields");
+
+      const res = await fetch("/api/check-room", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roomName, roomCode })
+      });
+
+      const data = await res.json();
+      if (!data.ok) return alert(data.msg || "Cannot join room");
+
+      window.location.href =
+        `room.html?room=${encodeURIComponent(roomName)}&name=${encodeURIComponent(displayName)}&host=false`;
+    }
+
+    // ================================
+    // OPEN / CLOSE MODALS
+    // ================================
+    function openModal(type) {
+      if (type === "create") {
+        document.getElementById("create-modal").classList.remove("hidden");
+      }
+      if (type === "join") {
+        document.getElementById("join-modal").classList.remove("hidden");
+      }
+    }
+
+    function closeModal(type) {
+      if (type === "create") {
+        document.getElementById("create-modal").classList.add("hidden");
+      }
+      if (type === "join") {
+        document.getElementById("join-modal").classList.add("hidden");
+      }
+      if (type === "info") {
+        document.getElementById("info-modal").classList.add("hidden");
+      }
+    }
+
+    // Show a small popup when user clicks "Your Profile"
+    function openProfile() {
+      const infoModal = document.getElementById("info-modal");
+      const infoTitle = document.getElementById("info-title");
+      const infoMsg = document.getElementById("info-message");
+      if (infoModal && infoTitle && infoMsg) {
+        infoTitle.textContent = "Your Profile";
+        infoMsg.textContent = "Profile feature coming soon. We'll add editing and settings in a future update.";
+        infoModal.classList.remove("hidden");
+
+        // Cancel / OK already wired to close modal — if you want a different button text you can update it here
+        const okBtn = infoModal.querySelector("button.btn.primary");
+        if (okBtn) okBtn.onclick = () => infoModal.classList.add("hidden");
+      } else {
+        alert("Profile feature coming soon.");
+      }
+    }
+
+    /* ==========================================
+       (Your animations & 3D code remain unchanged)
+    ========================================== */
+
+  </script>
+
+</body>
+
+</html>

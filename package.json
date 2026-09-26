@@ -1,0 +1,14 @@
+{
+    "name": "medzoom-ai-unified",
+    "version": "1.0.0",
+    "scripts": {
+        "start": "npm --prefix client run build && concurrently \"npm:start:ai\" \"npm:start:socket\"",
+        "start:ai": "cd AI_analyst && venv\\Scripts\\python app.py",
+        "start:socket": "cd web_scoket && node server.js",
+        "build:client": "npm --prefix client run build",
+        "dev:client": "npm --prefix client run dev"
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2"
+    }
+}

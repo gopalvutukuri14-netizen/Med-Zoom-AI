@@ -1,0 +1,262 @@
+/* GLOBAL RESET / BASE */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background-color: #020617; /* deep navy for AI theme */
+  color: #0f172a;
+}
+
+p {
+  font-size: large;
+}
+
+/* ======================== */
+/* AUTH LAYOUT + BACKGROUND */
+/* ======================== */
+
+.auth-layout {
+  position: relative;
+  overflow: hidden;
+}
+
+/* LEFT SIDE: AI medical background */
+
+.auth-left {
+  position: relative;
+  background: radial-gradient(circle at top left, #0ea5e9 0%, #1f2937 40%, #020617 100%);
+  color: #e5f3ff;
+}
+
+/* glowing blobs */
+
+.auth-left::before,
+.auth-left::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(36px);
+  mix-blend-mode: screen;
+  opacity: 0.6;
+  animation: authBlobFloat 16s ease-in-out infinite alternate;
+}
+
+.auth-left::before {
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, #38bdf8 0%, transparent 55%);
+  top: -40px;
+  left: -60px;
+}
+
+.auth-left::after {
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, #a855f7 0%, transparent 60%);
+  bottom: -80px;
+  right: -80px;
+  animation-delay: 4s;
+}
+
+/* DNA SVG floating */
+
+.dna-svg-wrapper {
+  position: absolute;
+  right: 12%;
+  top: 18%;
+  width: 160px;
+  height: 280px;
+  opacity: 0.3;
+  pointer-events: none;
+  animation: dnaFloat 7s ease-in-out infinite;
+}
+
+.dna-svg-wrapper svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* LEFT CONTENT animations */
+
+.auth-left-content {
+  position: relative;
+  z-index: 1;
+  animation: slideInLeft 0.9s ease-out forwards;
+  transform: translateX(-20px);
+  opacity: 0;
+}
+
+.auth-hero-image {
+  width: 100%;
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.55);
+  display: block;
+}
+
+.auth-hero-title {
+  color: #e5f3ff;
+}
+
+.auth-hero-text {
+  color: #cbd5f5;
+}
+
+/* RIGHT SIDE background */
+
+.auth-right {
+  background: radial-gradient(circle at top, #e5f0ff 0%, #f9fafb 45%, #e5e7eb 100%);
+}
+
+/* ======================== */
+/* AUTH CARD (Login/Signup) */
+/* ======================== */
+
+.auth-card-wrapper {
+  perspective: 1600px; /* for 3D tilt */
+}
+
+.auth-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 1rem;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.35);
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transition: transform 0.18s ease-out, box-shadow 0.18s ease-out;
+  animation: cardEnter 0.9s ease-out forwards;
+}
+
+/* holographic border */
+
+.auth-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from 0deg,
+    #38bdf8,
+    #0ea5e9,
+    #22c55e,
+    #a855f7,
+    #38bdf8
+  );
+  opacity: 0.7;
+  z-index: -2;
+  animation: borderSpin 12s linear infinite;
+}
+
+.auth-card::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at top, rgba(96, 165, 250, 0.18), transparent 55%),
+    #ffffff;
+  z-index: -1;
+}
+
+/* title + text */
+
+.auth-card-title {
+  color: #0f172a;
+}
+
+.auth-switch-text {
+  font-size: 0.95rem;
+}
+
+/* Inputs */
+
+.auth-input .MuiOutlinedInput-root {
+  background: #f9fafb;
+}
+
+.auth-input .MuiOutlinedInput-notchedOutline {
+  border-color: #cbd5f5;
+}
+
+.auth-input .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #0ea5e9;
+}
+
+/* Primary button */
+
+.auth-btn-primary {
+  background: linear-gradient(120deg, #0ea5e9, #2563eb);
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45);
+}
+
+.auth-btn-primary:hover {
+  background: linear-gradient(120deg, #0284c7, #1d4ed8);
+  box-shadow: 0 14px 32px rgba(37, 99, 235, 0.6);
+}
+
+/* ======================== */
+/* KEYFRAMES */
+/* ======================== */
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes borderSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes authBlobFloat {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(24px, -14px, 0) scale(1.06);
+  }
+  100% {
+    transform: translate3d(-12px, 16px, 0) scale(1.02);
+  }
+}
+
+@keyframes dnaFloat {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-18px) rotate(3deg);
+  }
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+}

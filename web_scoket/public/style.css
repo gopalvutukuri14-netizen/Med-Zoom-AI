@@ -1,0 +1,655 @@
+/* ===== GLOBAL ===== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body.home-body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: linear-gradient(120deg, #111827, #1d3557, #4c1d95, #0f766e);
+  background-size: 400% 400%;
+  animation: gradientMove 18s ease infinite;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  color: #123055;
+  overflow: hidden;
+}
+
+/* 3D background canvas */
+#bg3d {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ===== NAVBAR ===== */
+
+.top-nav {
+  height: 64px;
+  background: #1976d2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  z-index: 10;
+  position: relative;
+}
+
+.nav-logo {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.nav-logo span {
+  font-weight: 800;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+}
+
+/* Profile dropdown */
+
+.profile-menu {
+  position: relative;
+  cursor: pointer;
+}
+
+.profile-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 4px 10px 4px 4px;
+  color: #e3edff;
+  font-size: 0.9rem;
+}
+
+.avatar-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #1976d2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.profile-chip .caret {
+  font-size: 0.7rem;
+  margin-left: 2px;
+}
+
+.profile-dropdown {
+  position: absolute;
+  right: 0;
+  top: 120%;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.2);
+  padding: 6px 0;
+  min-width: 160px;
+  display: none;
+  z-index: 20;
+}
+
+.profile-dropdown.show {
+  display: block;
+}
+
+.profile-dropdown button {
+  width: 100%;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.profile-dropdown button:hover {
+  background: #f1f5ff;
+}
+
+.profile-dropdown .logout-item {
+  color: #e11d48;
+}
+
+/* ===== MAIN LAYOUT ===== */
+
+.landing-layout {
+  flex: 1;
+  display: flex;
+  min-height: calc(100vh - 64px);
+  position: relative;
+  z-index: 1;
+  /* above 3D canvas */
+}
+
+/* LEFT: gradient hero (70%) */
+
+.hero-left {
+  flex: 6;
+  padding: 60px 70px;
+  background: linear-gradient(135deg, #505b70 0%, #666f86 40%, #737c93 100%);
+  color: #f8fbff;
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Glowing blobs behind hero (UI/UX) */
+.hero-left::before,
+.hero-left::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.55;
+  mix-blend-mode: screen;
+  animation: blobFloat 18s ease-in-out infinite alternate;
+}
+
+.hero-left::before {
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, #35d4ff 0%, transparent 60%);
+  top: -40px;
+  left: -80px;
+}
+
+.hero-left::after {
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, #9f7aea 0%, transparent 60%);
+  bottom: -80px;
+  right: -80px;
+  animation-delay: 4s;
+}
+
+/* DNA helix container */
+.dna-bg {
+  position: absolute;
+  right: 6%;
+  top: 14%;
+  width: 180px;
+  height: 320px;
+  opacity: 0.3;
+  pointer-events: none;
+  animation: dnaFloat 6s ease-in-out infinite;
+}
+
+.dna-bg svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Hero content */
+.hero-content {
+  max-width: 620px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Big "Welcome to MedZoom AI" title */
+.hero-title {
+  margin: 0 0 8px;
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.hero-title span {
+  color: #35d4ff;
+}
+
+/* Hello, username */
+.hero-username {
+  margin: 0 0 14px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #d8ecff;
+}
+
+.hero-username span {
+  color: #ffffff;
+}
+
+.hero-image-wrap {
+  margin-top: 20px;
+}
+
+.hero-image {
+  width: 100%;
+  max-width: 550px;
+  border-radius: 16px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+  display: block;
+}
+
+.hero-subtitle {
+  margin-top: 18px;
+  font-size: 15px;
+  line-height: 1.7;
+  max-width: 520px;
+  color: #e2ecff;
+}
+
+/* RIGHT: Start Meeting card (30%) */
+
+.hero-right {
+  flex: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 40px 40px 24px;
+  background: #eef3ff;
+}
+
+/* GLASS / NEON MEETING CARD */
+.meeting-card {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 18px;
+  padding: 32px 32px 26px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  transform-style: preserve-3d;
+}
+
+.meeting-card::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: conic-gradient(from 0deg,
+      #38bdf8,
+      #a855f7,
+      #f97316,
+      #38bdf8);
+  opacity: 0.85;
+  z-index: -1;
+  animation: cardGlow 8s linear infinite;
+}
+
+@keyframes cardGlow {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.meeting-card::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background:
+    radial-gradient(circle at top, rgba(148, 163, 255, 0.24), transparent 55%),
+    #ffffffee;
+  border-radius: 16px;
+  z-index: -1;
+}
+
+.meeting-title {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #123055;
+}
+
+.meeting-subtitle {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: #5a6b8f;
+}
+
+.meeting-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ===== BUTTONS ===== */
+
+.btn {
+  border: none;
+  cursor: pointer;
+  padding: 11px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  transition: 0.18s ease;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn.full-width {
+  width: 100%;
+}
+
+/* Blue primary */
+.btn.primary {
+  background-color: #1976d2;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.45);
+}
+
+.btn.primary:hover {
+  background-color: #155fa8;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(25, 118, 210, 0.6);
+}
+
+/* Green success */
+.btn.success {
+  background-color: #16a34a;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+}
+
+.btn.success:hover {
+  background-color: #15803d;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(22, 163, 74, 0.6);
+}
+
+/* Text button (Cancel) */
+.btn.text {
+  background: transparent;
+  color: #1976d2;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+/* ===== MODALS ===== */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(4px);
+  z-index: 100;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 18px;
+  width: 420px;
+  max-width: 90%;
+  padding: 28px 32px 24px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+  color: #123055;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-content h2 {
+  margin: 0 0 16px;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.modal-content input {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 11px 12px;
+  border-radius: 8px;
+  border: 1px solid #d0dcf2;
+  background: #f7f8fc;
+  color: #123055;
+  font-size: 14px;
+}
+
+.modal-content input::placeholder {
+  color: #8a98b5;
+}
+
+.modal-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* ========================================================= */
+/* PAGE TRANSITION ANIMATION — LEFT SLIDE + RIGHT SLIDE */
+/* ========================================================= */
+
+.slide-left {
+  transform: translateX(-100%);
+  animation: slideInLeft 0.9s ease-out forwards;
+}
+
+.slide-right {
+  transform: translateX(100%);
+  animation: slideInRight 0.9s ease-out forwards;
+  animation-delay: 0.1s;
+}
+
+/* KEYFRAMES */
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ============================================= */
+/* NAVBAR SLIDE DOWN ANIMATION */
+/* ============================================= */
+
+.nav-slide-down {
+  transform: translateY(-100%);
+  animation: slideDownNav 0.6s ease-out forwards;
+}
+
+@keyframes slideDownNav {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* FLOATING HERO IMAGE (extra subtle float, plus GSAP intro) */
+.hero-floating {
+  animation: floatImage 4s ease-in-out infinite;
+}
+
+@keyframes floatImage {
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* ANIMATED BACKGROUND GRADIENT FOR BODY */
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* TEXT REVEAL */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: revealText 0.8s ease forwards;
+}
+
+@keyframes revealText {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Blob float */
+@keyframes blobFloat {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(20px, -10px, 0) scale(1.05);
+  }
+
+  100% {
+    transform: translate3d(-10px, 10px, 0) scale(1.02);
+  }
+}
+
+/* DNA float */
+@keyframes dnaFloat {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-20px) rotate(4deg);
+  }
+
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+}
+
+/* ============================================= */
+/* RESPONSIVE DESIGN (Dashboard) */
+/* ============================================= */
+
+/* Tablet / Small Desktop */
+@media (max-width: 900px) {
+  .landing-layout {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .hero-left {
+    padding: 40px 24px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .hero-content {
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-image {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .hero-right {
+    padding: 40px 24px;
+  }
+
+  .dna-bg {
+    display: none;
+    /* Hide DNA on smaller screens to reduce clutter */
+  }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .top-nav {
+    padding: 0 20px;
+  }
+
+  .nav-logo {
+    font-size: 1.2rem;
+  }
+
+  .hero-title {
+    font-size: 32px;
+  }
+
+  .hero-username {
+    font-size: 18px;
+  }
+
+  .hero-subtitle {
+    font-size: 14px;
+  }
+
+  .meeting-card {
+    padding: 24px 20px;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: 20px;
+  }
+}

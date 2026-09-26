@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>MedZoom AI - Room</title>
+  <link rel="stylesheet" href="meet.css" />
+
+  <style>
+    .xray-report-box {
+      margin-top: 12px;
+      padding: 12px;
+      background: #ffffff;
+      border: 1px solid #dcdcdc;
+      border-radius: 10px;
+
+      min-height: 60px;
+      /* always show a small box */
+      max-height: 150px;
+      /* HOW BIG the box can get */
+      overflow-y: auto;
+      /* scroll shows up only when needed */
+
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+      white-space: pre-wrap;
+      font-size: 14px;
+      color: #333;
+    }
+
+    /* Chrome/Edge scrollbar styling */
+    .xray-report-box::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .xray-report-box::-webkit-scrollbar-thumb {
+      background: #bfbfbf;
+      border-radius: 4px;
+    }
+
+    .xray-report-box::-webkit-scrollbar-thumb:hover {
+      background: #999;
+    }
+  </style>
+
+
+</head>
+
+<body class="room-page">
+  <!-- TOP BAR -->
+  <header class="room-topbar">
+    <div class="topbar-left">
+      <span id="topbar-title" class="topbar-title">Med-Zoom AI</span>
+    </div>
+    <div class="topbar-right">
+      <!-- Theme toggle -->
+      <button id="theme-toggle" class="theme-toggle-btn" title="Change theme">🌙</button>
+      <!-- End / Leave -->
+      <button id="end-btn" class="zoom-end-btn">Leave</button>
+    </div>
+  </header>
+
+  <!-- MAIN LAYOUT -->
+  <div class="meet-container">
+    <!-- LEFT: STAGE + REMOTE STRIP -->
+    <div class="left-area">
+      <!-- MAIN STAGE ROW: Self video + X-ray -->
+      <div class="stage-row">
+        <!-- SELF TILE -->
+        <!-- LOCAL TILE (self) -->
+        <div class="stage-tile" id="self-tile" style="position:relative;">
+          <video id="myVideo" autoplay playsinline></video>
+
+          <!-- Avatar overlay when video is OFF -->
+          <div class="video-avatar" id="self-avatar" style="display:none;">
+            <div class="avatar-circle" id="self-avatar-initial">U</div>
+            <div class="avatar-name" id="self-avatar-name">You</div>
+          </div>
+
+          <div id="self-name-label" class="video-name">You</div>
+        </div>
+
+
+        <!-- X-RAY VIEW TILE -->
+        <div class="stage-tile xray-stage">
+          <span id="xrayPlaceholder" class="xray-placeholder">
+            X-ray will appear here
+          </span>
+          <img id="xrayImage" class="xray-img" alt="X-ray will appear here" />
+          <canvas id="xrayCanvas" class="xray-canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- REMOTE PARTICIPANTS ROW (fixed columns via --cols) -->
+      <div class="remote-strip">
+        <button id="remote-prev" class="remote-nav">◀</button>
+
+        <!-- remote grid uses CSS grid and expects JS to append .remote-tile elements -->
+        <div id="remote-grid" class="remote-grid">
+        </div>
+
+        <button id="remote-next" class="remote-nav">▶</button>
+      </div>
+      <div class="remote-page-indicator" id="remote-page-indicator">1/1</div>
+
+      <!-- Grid view (legacy) - uses same tile class .video-tile so style is consistent -->
+      <div id="participant-strip" class="participant-strip">
+        <div id="video-grid" class="video-grid">
+          <!-- Example: JS can clone the same tiles here as .video-tile -->
+        </div>
+      </div>
+
+      <div class="remote-page-indicator" id="remote-page-indicator">1/1</div>
+
+      <!-- (legacy strip holder – can stay empty) -->
+      <div id="participant-strip" class="participant-strip">
+        <div id="video-grid" class="video-grid">
+          <!-- Remote tiles if you ever want a grid view -->
+        </div>
+      </div>
+
+      <div id="notify" class="notify"></div>
+    </div>
+
+    <!-- RIGHT: TOOLS + AI ANALYZER -->
+    <div class="right-panel">
+      <!-- Drawing tools -->
+      <div class="tools-box">
+        <div class="tools-header">Drawing tools</div>
+        <div class="tools-row">
+          <button class="tool-btn draw-tool-btn active" id="tool-pen">🖊 Pen</button>
+          <button class="tool-btn draw-tool-btn" id="tool-erase">🧹 Erase</button>
+          <button class="tool-btn draw-tool-btn" id="tool-circle">⭕ Circle</button>
+          <button class="tool-btn draw-tool-btn" id="tool-square">◻ Square</button>
+          <button class="tool-btn draw-tool-btn" id="tool-triangle">🔺 Triangle</button>
+          <button class="tool-btn draw-tool-btn" id="tool-undo">↩ Undo</button>
+          <button class="tool-btn draw-tool-btn" id="tool-redo">↪ Redo</button>
+          <button class="tool-btn draw-tool-btn" id="tool-clear">🗑 Clear</button>
+        </div>
+      </div>
+
+      <!-- AI analyzer controls -->
+      <div class="ai-analyzer-box">
+        <h3>AI X-Ray Diagnosis</h3>
+        <p class="xray-subtitle">
+          Host can upload a chest X-ray; result + image are shared to all.
+          Everyone can draw annotations.
+        </p>
+
+        <input type="file" id="xrayInput" accept="image/*" />
+        <button id="analyzeBtn" class="xray-btn">Analyze X-Ray</button>
+
+        <div id="xray-info" class="xray-info-text"></div>
+      </div>
+      <div class="xray-report-section">
+        <button class="xray-btn" onclick="generateXrayReport()">Generate X-Ray Report</button>
+        <div id="xray-report-box" class="xray-report-box"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ZOOM-LIKE BOTTOM BAR -->
+  <div class="zoom-bar">
+    <button class="zoom-btn" id="audio-btn">
+      <span class="zoom-icon">🎙️</span>
+      <span class="zoom-label">Audio</span>
+    </button>
+
+    <button class="zoom-btn" id="video-btn">
+      <span class="zoom-icon">🎥</span>
+      <span class="zoom-label">Video</span>
+    </button>
+
+    <button class="zoom-btn" id="participants-btn">
+      <span class="zoom-icon">👥</span>
+      <span class="zoom-label">Participants</span>
+    </button>
+
+    <button class="zoom-btn" id="chat-btn">
+      <span class="zoom-icon">💬</span>
+      <span class="zoom-label">Chat</span>
+      <span class="zoom-badge" id="chat-badge">0</span>
+    </button>
+
+    <button class="zoom-btn" id="share-btn">
+      <span class="zoom-icon">🖥️</span>
+      <span class="zoom-label">Share</span>
+    </button>
+
+    <button class="zoom-btn" id="info-btn">
+      <span class="zoom-icon">ℹ️</span>
+      <span class="zoom-label">Info</span>
+    </button>
+
+    <button class="zoom-btn" id="waiting-btn">
+      <span class="zoom-icon">⏳</span>
+      <span class="zoom-label">Waiting</span>
+      <span class="zoom-badge" id="waiting-badge" style="display:none;">0</span>
+    </button>
+  </div>
+
+
+  <!-- <div class="xray-report-section">
+  <button class="xray-btn" onclick="generateXrayReport()">Generate X-Ray Report</button>
+  <div id="xray-report-box" class="xray-report-box"></div>
+</div> -->
+  <!-- CHAT PANEL -->
+  <aside id="chat-panel" class="panel-slide">
+    <div class="panel-header">
+      <span>Chat</span>
+      <button class="panel-close">✕</button>
+    </div>
+    <div class="panel-body">
+      <div id="chat-box"></div>
+    </div>
+    <div class="chat-footer">
+      <textarea id="chat-input" class="chat-input" placeholder="Type..."></textarea>
+      <button id="chat-send-btn" class="send-btn">➤</button>
+    </div>
+  </aside>
+
+  <!-- PARTICIPANTS PANEL -->
+  <aside id="participants-panel" class="panel-slide">
+    <div class="panel-header">
+      <span>Participants</span>
+      <button class="panel-close">✕</button>
+    </div>
+    <div class="panel-body">
+      <div id="participants-list"></div>
+    </div>
+  </aside>
+
+  <!-- WAITING PANEL -->
+  <aside id="waiting-panel" class="panel-slide">
+    <div class="panel-header">
+      <span>Waiting Room</span>
+      <button class="panel-close">✕</button>
+    </div>
+    <div class="panel-body">
+      <div id="waiting-list"></div>
+    </div>
+  </aside>
+
+  <!-- INFO PANEL -->
+  <aside id="info-panel" class="panel-slide">
+    <div class="panel-header">
+      <span>Meeting Info</span>
+      <button class="panel-close">✕</button>
+    </div>
+    <div class="panel-body">
+      <div id="info-body"></div>
+    </div>
+  </aside>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script type="module" src="script.js"></script>
+</body>
+
+</html>
