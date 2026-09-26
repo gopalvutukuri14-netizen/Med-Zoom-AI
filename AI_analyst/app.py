@@ -77,6 +77,6 @@ if __name__ == "__main__":
     host = os.environ.get("HOST", "0.0.0.0")
     port = int(os.environ.get("PORT", 5001))
     debug = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
-    print(f"🚀 AI Analyst server running on http://{host}:{port}")
+    print(f"[AI Analyst] Server running on http://{host}:{port}")
     app.run(host=host, port=port, debug=debug)
 
